@@ -1,12 +1,105 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
 import { useAppStore } from '@/stores/index';
 import appSetting from '@/app-setting';
+import { useAuth } from "@/auth";
+
+const { isAuthenticated, userRole } = useAuth();
 
 import HomeView from '../views/index.vue';
+import Home from '../views/Home.vue';
+import QrScan from '../views/QrScan.vue';
+import Login from '../views/Login.vue';
+import QrDisplay from "@/views/QrDisplay.vue";
+import AddVehicle from "@/views/AddVehicle.vue";
+import ListVehicle from "@/views/ListVehicle.vue";
+import DetailVehicle from "@/views/DetailVehicle.vue";
 
 const routes: RouteRecordRaw[] = [
     // dashboard
-    { path: '/', name: 'home', component: HomeView },
+    // { path: '/', name: 'home', component: HomeView },
+    {
+        path: '/',
+        name: 'home',
+        component: Home,
+        beforeEnter: (to, from, next) => {
+            // Ensure user is authenticated and has appropriate role
+            if (isAuthenticated.value) {
+                next(); // Allow access if the role is not "Pengendara"
+            } else {
+                next("/login"); // Redirect if not authorized
+            }
+        },
+    },
+    {
+        path: "/qr-display",
+        name: "QrDisplay",
+        component: QrDisplay,
+        beforeEnter: (to, from, next) => {
+            // Allow access only if the user is authenticated and has the "Pengendara" role
+            if (isAuthenticated.value && userRole.value === "Pengendara") {
+                next();
+            } else {
+                next("/"); // Redirect to Home if not authorized
+            }
+        },
+    },
+    {
+        path: "/add-vehicle",
+        name: "AddVehicle",
+        component: AddVehicle,
+        beforeEnter: (to, from, next) => {
+            // Allow access only if the user is authenticated and has the "Pengendara" role
+            if (isAuthenticated.value && userRole.value === "Pengendara") {
+                next();
+            } else {
+                next("/"); // Redirect to Home if not authorized
+            }
+        },
+    },
+    {
+        path: "/detail-vehicle/:id",
+        name: "DetailVehicle",
+        component: DetailVehicle,
+        beforeEnter: (to, from, next) => {
+            // Allow access only if the user is authenticated and has the "Pengendara" role
+            if (isAuthenticated.value && userRole.value === "Pengendara") {
+                next();
+            } else {
+                next("/"); // Redirect to Home if not authorized
+            }
+        },
+    },
+    {
+        path: "/list-vehicle",
+        name: "ListVehicle",
+        component: ListVehicle,
+        beforeEnter: (to, from, next) => {
+            // Allow access only if the user is authenticated and has the "Pengendara" role
+            if (isAuthenticated.value && userRole.value === "Pengendara") {
+                next();
+            } else {
+                next("/"); // Redirect to Home if not authorized
+            }
+        },
+    },
+    {
+        path: "/qr-scan",
+        name: "QrScan",
+        component: QrScan,
+        beforeEnter: (to, from, next) => {
+            // Ensure user is authenticated and has appropriate role
+            if (isAuthenticated.value && userRole.value !== "Pengendara") {
+                next(); // Allow access if the role is not "Pengendara"
+            } else {
+                next("/"); // Redirect if not authorized
+            }
+        },
+    },
+    {
+        path: "/login",
+        name: "Login",
+        component: Login,
+    },
     {
         path: '/analytics',
         name: 'analytics',
